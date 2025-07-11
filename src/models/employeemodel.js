@@ -1,12 +1,15 @@
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 const employeeSchema = new mongoose.Schema({
-  name: String,
+  name: {
+    type: String,
+    required: true
+  },
   email: {
     type: String,
     required: true,
@@ -29,7 +32,6 @@ const employeeSchema = new mongoose.Schema({
   },
 });
 
-
 employeeSchema.pre("save", async function (next) {
   if (!this.isModified('password'))
     return next();
@@ -37,12 +39,9 @@ employeeSchema.pre("save", async function (next) {
   next();
 });
 
-
 employeeSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
-
-
 
 employeeSchema.methods.generateAccessToken = function () {
   return jwt.sign(
@@ -59,7 +58,6 @@ employeeSchema.methods.generateAccessToken = function () {
   );
 };
 
-
 employeeSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
     {
@@ -73,5 +71,5 @@ employeeSchema.methods.generateRefreshToken = function () {
 };
 
 
-const Employee = mongoose.model("User", employeeSchema);
+const Employee = mongoose.model("Employee", employeeSchema);
 export default Employee;
